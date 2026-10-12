@@ -132,7 +132,7 @@ def collect_chars(cache):
 def set_alpha8_texture(t, canvas):
     """把 uint8 图集写回 Alpha8 的 Texture2D（Unity 内部是上下翻转存的）。
 
-    这里直接改字段而不是用 ``t.image = ...``：UnityPy 把 Alpha8 映射成 PIL 的 'A' 模式，
+    这里直接改字段，没有走 ``t.image = ...``：UnityPy 把 Alpha8 映射成 PIL 的 'A' 模式，
     而 numpy/ImageDraw 生成的图像没法转成 'A'。
     """
     t.m_Width = int(canvas.shape[1])
