@@ -1,7 +1,10 @@
 @echo off
-setlocal
-title Motorsport Manager ����ж��
+chcp 65001 >nul 2>&1
+if "%~1"=="/u" goto :mm_main
+cmd /d /c ""%~f0" /u"
+exit /b %errorlevel%
 
+:mm_main
 set "HERE=%~dp0"
 if "%HERE:~-1%"=="\" set "HERE=%HERE:~0,-1%"
 set "GAME="
@@ -26,7 +29,7 @@ exit /b 0
 :ask
 echo.
 set "GAME="
-set /p GAME=������ Motorsport Manager �ļ��е�����·��: 
+set /p GAME=请输入 Motorsport Manager 文件夹的完整位置: 
 for /f "tokens=* delims=" %%i in ("%GAME%") do set "GAME=%%~i"
 if "%GAME%"=="" goto fail
 
@@ -34,24 +37,24 @@ if "%GAME%"=="" goto fail
 set "BAK=%GAME%\MM_Data\resources.assets.orig"
 if not exist "%BAK%" goto nobak
 echo.
-echo   ��ϷĿ¼: %GAME%
-echo   ���ڻ�ԭӢ��ԭ�� ...
+echo   游戏目录: %GAME%
+echo   正在还原英文原版 ...
 copy /y "%BAK%" "%GAME%\MM_Data\resources.assets" >nul
 if errorlevel 1 goto copyfail
 del /q "%BAK%"
 echo.
-echo   �ѻ�ԭΪӢ��ԭ�档
+echo   已还原为英文原版。
 pause
 exit /b 0
 
 :nobak
 echo.
-echo   [����] �Ҳ��������ļ� resources.assets.orig
-echo          ������ Steam �ġ���֤��Ϸ�ļ������ԡ�����ԭ��
+echo   [错误] 找不到备份文件 resources.assets.orig
+echo          可以用 Steam 的「验证游戏文件完整性」来还原。
 goto fail
 
 :copyfail
-echo   [����] ��ԭʧ�ܣ����ȹر���Ϸ�� Steam�����Թ���Ա�������С�
+echo   [错误] 还原失败，请先关闭游戏和 Steam，或以管理员身份运行。
 goto fail
 
 :fail

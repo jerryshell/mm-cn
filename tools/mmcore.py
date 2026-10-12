@@ -76,6 +76,7 @@ def setup_console():
 
     中文 Windows 的控制台默认是 GBK(936)，脚本打印一个非 GBK 字符（比如波兰语人名里的 ś）
     就会抛 UnicodeEncodeError 直接崩掉。这里统一改成 UTF-8，并允许替换无法编码的字符。
+    注意这只作用于 Python 脚本本身；批处理的编码处理见 scripts/make_installer.py。
     """
     import sys
     for stream in (sys.stdout, sys.stderr):

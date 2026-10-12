@@ -1,30 +1,55 @@
 """生成随 release 一起发布的两个 Windows 安装脚本。
 
-**这两个 .bat 必须以系统 ANSI 代码页（中文 Windows 是 GBK）保存。**
-cmd.exe 无法解析 UTF-8 的批处理文件：UTF-8 的中文在 GBK 代码页下会被拆成一堆
-乱码字节，脚本会以「不是内部或外部命令」的形式崩掉。
+编码选择
+--------
+批处理文件必须是 **UTF-8 无 BOM**，理由如下（都在中文 Windows 上实测过）：
 
-批处理里所有语法必须保持 ASCII，中文只出现在 echo/rem 里，这样即使用户的
-代码页不是 936，最多是提示文字显示乱码，安装逻辑仍然正常。
+===========  ==========================================  ==========
+编码          结果                                        
+===========  ==========================================  ==========
+GBK          能跑，但只在中日韩代码页的系统上显示正常              
+UTF-8+BOM    cmd 把 BOM 当成命令的一部分，直接报语法错误          
+UTF-8 无 BOM  控制台代码页是 936 时中文被拆坏，报语法错误          
+UTF-8+chcp   先切到 65001 再解析，解析与显示都正常              
+===========  ==========================================  ==========
+
+cmd.exe 按控制台代码页解释批处理里的字节。中文 Windows 默认是 936，UTF-8 的中文
+在那儿会被拆成无效字节，脚本以「命令语法不正确」崩掉；而 GBK 虽然能在 936 上跑，
+却会让编辑器、代码托管网页和非中文系统全部显示成乱码。
+
+所以这里用 UTF-8，并在文件最前面放一段**纯 ASCII** 的引导代码：把控制台切到
+65001，然后重新启动一次自己。第二遍执行时整个文件都在 65001 下读取，
+解析和显示都正常。引导段必须在任何中文出现之前结束，第一遍才不会读到中文。
+
+`.gitattributes` 里声明了 `*.bat text eol=crlf`：仓库内存 LF 便于查看 diff，
+检出时还原成 CRLF —— 只有 LF 的批处理在 `goto` 和标签上会出问题。
 """
-import os, sys
+import os
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tools'))
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tools'))
 from mmcore import ROOT, setup_console
 
 OUT = os.path.join(ROOT, 'installer')
-BS = chr(92)          # a literal backslash, kept out of the templates below
+BS = chr(92)          # 字面反斜杠，避免在模板里写转义
 
-INSTALL = r'''@echo off
-setlocal enabledelayedexpansion
-title Motorsport Manager 简体中文汉化补丁
+# 纯 ASCII 引导段：切换代码页后重启自己。第一遍只会读到这一段。
+BOOTSTRAP = '''@echo off
+chcp 65001 >nul 2>&1
+if "%~1"=="/u" goto :mm_main
+cmd /d /c ""%~f0" /u"
+exit /b %errorlevel%
 
+:mm_main
+'''
+
+INSTALL = BOOTSTRAP + r'''rem ---------- 1) 在补丁文件夹附近找游戏 ----------
 set "HERE=%~dp0"
 if "%HERE:~-1%"=="\b" set "HERE=%HERE:~0,-1%"
 set "GAME="
 
-rem ---------- 1) 在补丁文件夹附近找游戏 ----------
 if exist "%HERE%\bMM_Data\bresources.assets" set "GAME=%HERE%"
 if not defined GAME if exist "%HERE%\bMotorsport Manager\bMM_Data\bresources.assets" set "GAME=%HERE%\bMotorsport Manager"
 if not defined GAME if exist "%HERE%\b..\bMM_Data\bresources.assets" set "GAME=%HERE%\b.."
@@ -48,11 +73,11 @@ exit /b 0
 :ask
 echo.
 echo   没有自动找到游戏目录。
-echo   可以把本补丁文件夹放到 "Motorsport Manager" 文件夹里（和 MM.exe 同级）再运行，
+echo   可以把本补丁文件夹放到 「Motorsport Manager」 文件夹里（和 MM.exe 同级）再运行，
 echo   也可以直接在下面输入游戏目录。
 echo.
 set "GAME="
-set /p GAME=请输入 Motorsport Manager 文件夹的完整路径: 
+set /p GAME=请输入 Motorsport Manager 文件夹的完整位置: 
 for /f "tokens=* delims=" %%i in ("%GAME%") do set "GAME=%%~i"
 if "%GAME%"=="" goto fail
 
@@ -68,7 +93,7 @@ if not defined SRC if exist "%HERE%\bpatch\bresources.assets" set "SRC=%HERE%\bp
 if not defined SRC if exist "%HERE%\b..\bresources.assets" set "SRC=%HERE%\b..\bresources.assets"
 if not defined SRC goto nosrc
 
-rem ---------- 5) 备份 + 安装 ----------
+rem ---------- 5) 备份，然后安装 ----------
 for %%A in ("%GAME%\bMM_Data\bresources.assets") do set "CURSIZE=%%~zA"
 if not defined CURSIZE set "CURSIZE=0"
 if %CURSIZE% LSS 300000000 goto sizeok
@@ -119,11 +144,7 @@ pause
 exit /b 1
 '''
 
-UNINSTALL = r'''@echo off
-setlocal
-title Motorsport Manager 汉化卸载
-
-set "HERE=%~dp0"
+UNINSTALL = BOOTSTRAP + r'''set "HERE=%~dp0"
 if "%HERE:~-1%"=="\b" set "HERE=%HERE:~0,-1%"
 set "GAME="
 
@@ -147,7 +168,7 @@ exit /b 0
 :ask
 echo.
 set "GAME="
-set /p GAME=请输入 Motorsport Manager 文件夹的完整路径: 
+set /p GAME=请输入 Motorsport Manager 文件夹的完整位置: 
 for /f "tokens=* delims=" %%i in ("%GAME%") do set "GAME=%%~i"
 if "%GAME%"=="" goto fail
 
@@ -186,13 +207,16 @@ def main():
     setup_console()
     os.makedirs(OUT, exist_ok=True)
     for name, text in (('安装汉化.bat', INSTALL), ('卸载还原.bat', UNINSTALL)):
-        # '\b' is the placeholder for a real backslash
-        data = text.replace(BS + 'b', BS)
-        data = data.replace('\r\n', '\n').replace('\n', '\r\n').encode('gbk')
-        path = os.path.join(OUT, name)
-        with open(path, 'wb') as f:
+        # '\b' 是字面反斜杠的占位符
+        body = text.replace(BS + 'b', BS)
+        # 统一成 CRLF；编码必须是 UTF-8 且不带 BOM
+        body = body.replace('\r\n', '\n').replace('\n', '\r\n')
+        data = body.encode('utf-8')
+        if data.startswith(b'\xef\xbb\xbf'):
+            raise SystemExit('%s 带了 BOM，cmd 会把它当成命令的一部分' % name)
+        with open(os.path.join(OUT, name), 'wb') as f:
             f.write(data)
-        print('%-16s %5d bytes (GBK)' % (name, len(data)))
+        print('%-16s %5d 字节  UTF-8 无 BOM  CRLF' % (name, len(data)))
 
 
 if __name__ == '__main__':

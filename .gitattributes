@@ -1,14 +1,13 @@
 # 换行符与文本属性。Windows 上如果不显式声明，git 的 autocrlf 和文本嗅探
 # 会改写下面的文件，而这两类文件被改动后会直接失效。
 
-# 安装脚本是 GBK 编码的批处理。必须按二进制原样存取：
-#   * 走 text 归一化会把 CRLF 转成 LF，批处理里的 goto/标签会失效；
-#   * 被当成文本 diff 也可能在合并时破坏 GBK 字节。
-# 这里声明 -text（不转换、不做行尾归一化），保证任何平台检出都是同样字节。
-*.bat -text
+# 安装脚本是 UTF-8 无 BOM 的批处理，见 scripts/make_installer.py 里的编码说明。
+# 仓库内存 LF 方便看 diff，检出时还原 CRLF —— 只有 LF 的批处理在 goto 和标签上会出问题。
+# 不要改成 -text：那样会当成二进制，托管平台的网页端就没法直接阅读和 diff。
+*.bat text eol=crlf
 
 # 其它批处理相关文件同理
-*.cmd -text
+*.cmd text eol=crlf
 
 # 翻译记忆是 UTF-8 JSONL，强制 LF，避免在 Windows 上检出成 CRLF 后
 # 每行末尾多一个 \r（加载端虽然会 strip，但 diff 会全文件变红）

@@ -162,9 +162,10 @@ mm-cn/
 │   └─ 字体效果预览.png
 ├─ installer/                 随 release 发布的安装脚本与玩家说明
 ├─ scripts/
-│   ├─ make_installer.py      生成 installer/*.bat（GBK 编码）
+│   ├─ make_installer.py      生成 installer/*.bat（UTF-8 无 BOM + 代码页切换）
 │   ├─ package_release.py     打包 release zip
-│   └─ check_docstyle.py      按中文技术文档规范检查文档与注释
+│   ├─ check_docstyle.py      按中文技术文档规范检查文档与注释
+│   └─ check_encoding.py      检查文件编码、BOM 与乱码特征
 ├─ trans/
 │   └─ zh_cache.jsonl         翻译记忆（11,605 条），这是补丁的核心产物
 ├─ extract/   *               游戏原始 CSV（本地生成，不入库）
@@ -203,6 +204,7 @@ python tools/verify.py     # 结构校验，读 dist/resources.assets
 python tools/accept.py     # 终验收 42 项，读已安装到游戏里的文件
 python tools/preview.py    # 生成字体预览图
 python scripts/check_docstyle.py   # 检查文档与注释是否符合中文排版规范
+python scripts/check_encoding.py   # 检查文件编码、BOM 与乱码特征
 
 # 5. 打包
 python scripts/make_installer.py
