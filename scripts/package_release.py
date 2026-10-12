@@ -64,6 +64,7 @@ def main():
         'patch_file': 'resources.assets',
         'patch_bytes': os.path.getsize(patch),
         'patch_md5': md5(patch),
+        'original_bytes': os.path.getsize(backup) if os.path.exists(backup) else None,
         'original_md5': md5(backup) if os.path.exists(backup) else None,
         'sheets': 14,
         'rows_with_english': 12944,
