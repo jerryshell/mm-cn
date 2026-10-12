@@ -22,7 +22,7 @@ cmd.exe 按控制台代码页解释批处理里的字节。中文 Windows 默认
 解析和显示都正常。引导段必须在任何中文出现之前结束，第一遍才不会读到中文。
 
 `.gitattributes` 里声明了 `*.bat text eol=crlf`：仓库内存 LF 便于查看 diff，
-检出时还原成 CRLF —— 只有 LF 的批处理在 `goto` 和标签上会出问题。
+检出时还原成 CRLF。只有 LF 的批处理在 `goto` 和标签上会出问题。
 """
 import os
 import sys

@@ -8,7 +8,9 @@
 * Python 文件的 `#` 注释与三引号字符串（文档字符串、批处理模板）
 * 批处理脚本里的提示文案
 
-不检查代码字面量 —— JSON 键名、路径、表名、游戏原文与译文都不在范围内，
+标点方面要求：中文用直角引号，不用破折号，不用 emoji 与箭头，不用感叹号。
+
+不检查代码字面量，JSON 键名、路径、表名、游戏原文与译文都不在范围内，
 规范里也明确要求不对这些内容做改写。
 
 退出码非 0 表示存在需要修改的项；中危词只做提示，不影响退出码。
@@ -32,6 +34,19 @@ CURLY_QUOTE = re.compile(r'[“”]')
 
 # 正文不使用感叹号
 EXCLAIM = re.compile(r'！')
+
+# 正文不使用破折号（—— 与各种横线变体）
+DASH = re.compile('[—–―‒−]')
+
+# 正文不使用 emoji 与箭头符号
+EMOJI = re.compile('['
+                   '🌀-🫿'      # 各类 emoji
+                   '☀-➿'      # 杂项符号与装饰符号
+                   '🀀-🋿'      # 麻将、扑克、方块
+                   '︀-️'      # 变体选择符（把字符变成 emoji 样式）
+                   '←-⇿'      # 箭头
+                   '⬀-⯿'      # 杂项符号与箭头
+                   ']')
 
 # 高危黑话：命中即失败
 BLACKLIST = ['赋能', '抓手', '闭环', '沉淀', '对齐', '对标', '拉通', '打通', '协同',
@@ -120,6 +135,12 @@ def check_file(path):
             fails.append((n, '中文双引号（应改直角引号）', shown))
         if EXCLAIM.search(line):
             fails.append((n, '感叹号', shown))
+        m = DASH.search(line)
+        if m:
+            fails.append((n, '破折号（%r）' % m.group(0), shown))
+        m = EMOJI.search(line)
+        if m:
+            fails.append((n, 'emoji 或箭头（%r）' % m.group(0), shown))
         for w in BLACKLIST:
             if w not in line:
                 continue
