@@ -1,0 +1,33 @@
+# ---- generated game data (re-create with `python tools/extract.py`) ----------
+extract/
+assets/
+build/
+
+# ---- build output ------------------------------------------------------------
+dist/
+
+# ---- translation run artefacts ----------------------------------------------
+# 注意：trans/zh_cache.jsonl 必须入库 —— 它就是补丁的翻译记忆本体
+trans/*.log
+trans/zh_failed.jsonl
+trans/*.bak.jsonl
+trans/*.tmp
+trans/*.jsonl.tmp
+# 显式反选，防止以后加宽规则时把翻译记忆一起排除掉
+!trans/zh_cache.jsonl
+
+# ---- python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ---- editors / os ------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

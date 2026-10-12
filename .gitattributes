@@ -1,0 +1,32 @@
+# 换行符与文本属性。Windows 上如果不显式声明，git 的 autocrlf 和文本嗅探
+# 会改写下面的文件，而这两类文件被改动后会直接失效。
+
+# 安装脚本是 GBK 编码的批处理。必须按二进制原样存取：
+#   * 走 text 归一化会把 CRLF 转成 LF，批处理里的 goto/标签会失效；
+#   * 被当成文本 diff 也可能在合并时破坏 GBK 字节。
+# 这里声明 -text（不转换、不做行尾归一化），保证任何平台检出都是同样字节。
+*.bat -text
+
+# 其它批处理相关文件同理
+*.cmd -text
+
+# 翻译记忆是 UTF-8 JSONL，强制 LF，避免在 Windows 上检出成 CRLF 后
+# 每行末尾多一个 \r（加载端虽然会 strip，但 diff 会全文件变红）
+*.jsonl text eol=lf
+
+# 源码与文档统一 LF
+*.py     text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+*.json   text eol=lf
+*.csv    text eol=lf
+
+# 图片按二进制处理
+*.png binary
+*.jpg binary
+
+# 发布包与游戏资源一律不进仓库（.gitignore 也会挡一层）
+*.zip binary
+*.assets binary
+*.resS binary
+*.ttf binary

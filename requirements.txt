@@ -1,0 +1,18 @@
+# Runtime dependencies of the localisation pipeline.
+#
+# UnityPy    read/write Unity 5.3 serialized assets (resources.assets)
+# Pillow     atlas IO, FreeType rasterisation, preview rendering
+# numpy      glyph atlas maths
+# scipy      exact Euclidean distance transform for the SDF generator
+# fonttools  reading metrics out of TTFs during calibration
+#
+# dnfile is only needed by tools/scan_assets.py (inspecting .NET type refs).
+
+UnityPy>=1.25,<2
+Pillow>=10
+numpy>=1.26
+scipy>=1.11
+fonttools>=4.40
+
+# optional - only needed by tools/scan_assets.py (inspecting .NET type refs)
+# dnfile>=0.15
