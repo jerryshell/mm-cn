@@ -44,7 +44,7 @@ def scan(path, script_table):
     for pid, o in sf.objects.items():
         if o.type.name != 'MonoBehaviour':
             continue
-        # m_GameObject(12) + m_Enabled(1+3 对齐) + m_Script(12)
+        # m_GameObject(12 字节) + m_Enabled(1 字节 + 3 字节填充) + m_Script(12 字节)
         raw = o.get_raw_data()
         fid = struct.unpack('<i', raw[16:20])[0]
         spid = struct.unpack('<q', raw[20:28])[0]

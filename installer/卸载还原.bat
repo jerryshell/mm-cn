@@ -47,7 +47,7 @@ exit /b 0
 :nobak
 echo.
 echo   [错误] 找不到备份文件 resources.assets.orig
-echo          可以用 Steam 的“验证游戏文件完整性”来还原。
+echo          可以用 Steam 的「验证游戏文件完整性」来还原。
 goto fail
 
 :copyfail

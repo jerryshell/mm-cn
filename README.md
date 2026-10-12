@@ -37,7 +37,7 @@
    ```
 
    > 放别的地方也行。脚本会依次检查：补丁文件夹附近 → Steam 注册表里的安装路径 →
-   > Steam 默认安装位置，都找不到时会提示你手动输入游戏目录。
+   > Steam 默认安装位置，都找不到时会提示手动输入游戏目录。
 
 3. 双击 `简体中文汉化\安装汉化.bat`。
 
@@ -131,7 +131,7 @@ F1–F12、`DD/MM/YYYY` 这类格式串和赛事缩写，白名单在
 再拿它当源会把中文当成英文原文、把图集重复缩比。`mmcore.pristine_assets()`
 专门挡这种情况。
 
-完整的技术细节、实测数据表、以及踩过的坑都在 **[docs/技术说明.md](docs/技术说明.md)**。
+完整的技术细节、实测数据表和实现要点都在 **[docs/技术说明.md](docs/技术说明.md)**。
 
 ---
 
@@ -156,14 +156,15 @@ mm-cn/
 │   ├─ preview.py             按 TMP 排版算法渲染预览图
 │   └─ scan_assets.py         研究用：把 MonoBehaviour 映射回脚本类名
 ├─ docs/
-│   ├─ 技术说明.md            逆向细节、实测数据、踩过的坑
+│   ├─ 技术说明.md            逆向细节、实测数据、实现要点
 │   ├─ 术语表.md              术语对照与保留串清单
 │   ├─ 贡献指南.md            怎么改进翻译
 │   └─ 字体效果预览.png
 ├─ installer/                 随 release 发布的安装脚本与玩家说明
 ├─ scripts/
 │   ├─ make_installer.py      生成 installer/*.bat（GBK 编码）
-│   └─ package_release.py     打包 release zip
+│   ├─ package_release.py     打包 release zip
+│   └─ check_docstyle.py      按中文技术文档规范检查文档与注释
 ├─ trans/
 │   └─ zh_cache.jsonl         翻译记忆（11,605 条），这是补丁的核心产物
 ├─ extract/   *               游戏原始 CSV（本地生成，不入库）
@@ -201,6 +202,7 @@ python tools/build_patch.py --text-only  # 只重写文本，约 30 秒
 python tools/verify.py     # 结构校验，读 dist/resources.assets
 python tools/accept.py     # 终验收 42 项，读已安装到游戏里的文件
 python tools/preview.py    # 生成字体预览图
+python scripts/check_docstyle.py   # 检查文档与注释是否符合中文排版规范
 
 # 5. 打包
 python scripts/make_installer.py

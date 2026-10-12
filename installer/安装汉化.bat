@@ -57,7 +57,7 @@ if %CURSIZE% LSS 300000000 goto sizeok
 echo.
 echo   [警告] 当前的 resources.assets 已经是汉化过的版本（%CURSIZE% 字节）。
 echo          继续会把汉化文件当成原版备份，以后卸载就无法还原英文了。
-echo          建议先用 Steam 的“验证游戏文件完整性”还原英文版，再运行本安装。
+echo          建议先用 Steam 的「验证游戏文件完整性」还原英文版，再运行本安装。
 echo.
 pause
 :sizeok
