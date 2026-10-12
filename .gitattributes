@@ -14,12 +14,14 @@
 # 每行末尾多一个 \r（加载端虽然会 strip，但 diff 会全文件变红）
 *.jsonl text eol=lf
 
-# 源码与文档统一 LF
-*.py     text eol=lf
-*.md     text eol=lf
-*.txt    text eol=lf
-*.json   text eol=lf
-*.csv    text eol=lf
+# 源码、文档、配置统一 LF，避免跨平台协作时整文件 diff 全红
+*.py        text eol=lf
+*.md        text eol=lf
+*.txt       text eol=lf
+*.json      text eol=lf
+*.csv       text eol=lf
+.gitignore  text eol=lf
+.gitattributes -text
 
 # 图片按二进制处理
 *.png binary
